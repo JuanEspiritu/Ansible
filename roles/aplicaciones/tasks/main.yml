@@ -1,0 +1,13 @@
+---
+# Tareas de instalación de aplicaciones específicas por grupo
+- name: "Instalar software académico"
+  apt:
+    name: "{{ software_academico }}"
+    state: present
+  when: "'academico' in group_names"
+  
+- name: "Instalar software gaming"
+  apt:
+    name: "{{ software_gaming }}"
+    state: present
+  when: "'gaming' in group_names"

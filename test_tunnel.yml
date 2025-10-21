@@ -1,0 +1,42 @@
+---
+# =============================================================================
+# PLAYBOOK GATEWAY - Usar vCenter como puente hacia Ubuntu Server
+# =============================================================================
+
+- hosts: localhost
+  connection: local
+  gather_facts: no
+  vars:
+    ansible_become: false
+    vcenter_ip: "168.121.48.254"
+    ubuntu_ip: "172.17.25.48"
+    
+  tasks:
+    - name: "🔍 Verificar vCenter disponible"
+      shell: "curl -k -I https://{{ vcenter_ip }}:10123 --connect-timeout 5"
+      register: vcenter_check
+      
+    - name: "✅ vCenter OK - Intentar llegar a Ubuntu via vCenter"
+      debug:
+        msg: "vCenter responde. Configurando túnel SSH..."
+      when: "'HTTP' in vcenter_check.stdout"
+      
+    - name: "🚀 Crear túnel SSH via vCenter"
+      shell: |
+        # Intentar conexión SSH directa desde vCenter a Ubuntu
+        ssh -o ConnectTimeout=10 -o StrictHostKeyChecking=no \
+            -o ProxyCommand="ssh -W {{ ubuntu_ip }}:22 root@{{ vcenter_ip }}" \
+            ubuntu@{{ ubuntu_ip }} 'echo "Conexión exitosa via vCenter"'
+      register: tunnel_result
+      ignore_errors: yes
+      
+    - name: "📊 Resultado del túnel"
+      debug:
+        msg: |
+          {% if tunnel_result.rc == 0 %}
+          ✅ ¡Túnel SSH funciona! Ansible puede usar vCenter como gateway.
+          🚀 Configurar ansible.cfg con ProxyCommand
+          {% else %}
+          ❌ Túnel SSH no funciona. Error: {{ tunnel_result.stderr }}
+          💡 Necesitamos habilitar SSH en vCenter o usar otra estrategia
+          {% endif %}

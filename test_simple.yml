@@ -1,0 +1,13 @@
+---
+- hosts: localhost
+  connection: local
+  gather_facts: no
+  vars:
+    ansible_become: no
+  tasks:
+    - name: "Test vCenter con curl"
+      shell: "curl -k -I https://168.121.48.254:10123 --connect-timeout 10"
+      register: curl_result
+      
+    - debug:
+        msg: "vCenter funciona: {{ 'HTTP' in curl_result.stdout }}"

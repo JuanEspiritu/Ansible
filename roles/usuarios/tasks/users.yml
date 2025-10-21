@@ -1,0 +1,96 @@
+---
+# Tareas para gestión de usuarios
+
+- name: Crear usuario administrador del laboratorio
+  user:
+    name: "{{ lab_admin_user.name }}"
+    groups: "{{ lab_admin_user.groups }}"
+    shell: "{{ lab_admin_user.shell }}"
+    create_home: "{{ lab_admin_user.create_home }}"
+    password: "{{ lab_admin_user.password | default(omit) }}"
+    state: present
+  tags:
+    - users
+    - admin
+
+- name: Crear usuarios del laboratorio académico
+  user:
+    name: "{{ item.name }}"
+    groups: "{{ item.groups }}"
+    shell: "{{ item.shell }}"
+    create_home: "{{ item.create_home }}"
+    password: "{{ item.password | default(omit) }}"
+    state: present
+  loop: "{{ academic_users }}"
+  when: lab_type is defined and lab_type == 'academico'
+  tags:
+    - users
+    - academic
+
+- name: Crear usuarios del laboratorio gaming
+  user:
+    name: "{{ item.name }}"
+    groups: "{{ item.groups }}"
+    shell: "{{ item.shell }}"
+    create_home: "{{ item.create_home }}"
+    password: "{{ item.password | default(omit) }}"
+    state: present
+  loop: "{{ gaming_users }}"
+  when: lab_type is defined and lab_type == 'gaming'
+  tags:
+    - users
+    - gaming
+
+- name: Configurar directorio home para usuarios
+  file:
+    path: "/home/{{ item.name }}"
+    owner: "{{ item.name }}"
+    group: "{{ item.name }}"
+    mode: '0750'
+    state: directory
+  loop: "{{ academic_users + gaming_users }}"
+  when: item.create_home | default(true)
+  tags:
+    - users
+    - home_directories
+
+- name: Crear directorio .ssh para usuarios
+  file:
+    path: "/home/{{ item.name }}/.ssh"
+    owner: "{{ item.name }}"
+    group: "{{ item.name }}"
+    mode: '0700'
+    state: directory
+  loop: "{{ academic_users + gaming_users }}"
+  when: item.create_home | default(true)
+  tags:
+    - users
+    - ssh_directories
+
+- name: Configurar bashrc personalizado para usuarios académicos
+  template:
+    src: academic_bashrc.j2
+    dest: "/home/{{ item.name }}/.bashrc"
+    owner: "{{ item.name }}"
+    group: "{{ item.name }}"
+    mode: '0644'
+  loop: "{{ academic_users }}"
+  when: lab_type is defined and lab_type == 'academico'
+  tags:
+    - users
+    - bashrc
+    - academic
+
+- name: Configurar bashrc personalizado para usuarios gaming
+  template:
+    src: gaming_bashrc.j2
+    dest: "/home/{{ item.name }}/.bashrc"
+    owner: "{{ item.name }}"
+    group: "{{ item.name }}"
+    mode: '0644'
+  loop: "{{ gaming_users }}"
+  when: lab_type is defined and lab_type == 'gaming'
+  tags:
+    - users
+    - bashrc
+    - gaming

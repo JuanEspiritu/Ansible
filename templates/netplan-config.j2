@@ -1,0 +1,12 @@
+network:
+  version: 2
+  ethernets:
+    {{ ansible_default_ipv4.interface | default('ens192') }}:
+      dhcp4: false
+      addresses:
+        - {{ target_ip }}/24
+      gateway4: {{ target_gateway }}
+      nameservers:
+        addresses:
+          - 8.8.8.8
+          - 8.8.4.4

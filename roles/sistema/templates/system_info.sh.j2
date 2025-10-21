@@ -1,0 +1,47 @@
+#!/bin/bash
+# Script de información del sistema para laboratorios
+# Generado por Ansible - No editar manualmente
+
+echo "=== INFORMACIÓN DEL SISTEMA ==="
+echo "Fecha y hora: $(date)"
+echo "Uptime: $(uptime)"
+echo ""
+
+echo "=== INFORMACIÓN DE CPU ==="
+echo "Procesador: $(cat /proc/cpuinfo | grep 'model name' | head -1 | cut -d: -f2 | xargs)"
+echo "Núcleos: $(nproc)"
+echo "Carga actual: $(cat /proc/loadavg)"
+echo ""
+
+echo "=== INFORMACIÓN DE MEMORIA ==="
+free -h
+echo ""
+
+echo "=== INFORMACIÓN DE DISCO ==="
+df -h
+echo ""
+
+echo "=== PROCESOS CON MAYOR USO DE CPU ==="
+ps -eo pid,ppid,cmd,%mem,%cpu --sort=-%cpu | head -10
+echo ""
+
+echo "=== PROCESOS CON MAYOR USO DE MEMORIA ==="
+ps -eo pid,ppid,cmd,%mem,%cpu --sort=-%mem | head -10
+echo ""
+
+echo "=== SERVICIOS CRÍTICOS ==="
+{% for service in critical_services %}
+echo "{{ service }}: $(systemctl is-active {{ service }})"
+{% endfor %}
+echo ""
+
+echo "=== CONEXIONES DE RED ==="
+netstat -tuln | head -20
+echo ""
+
+echo "=== USUARIOS CONECTADOS ==="
+who
+echo ""
+
+echo "=== ÚLTIMOS LOGINS ==="
+last | head -10

@@ -1,0 +1,15 @@
+---
+# Tareas de configuración del sistema
+- name: "Actualizar el sistema"
+  apt:
+    update_cache: yes
+    upgrade: yes
+    
+- name: "Instalar paquetes básicos"
+  apt:
+    name: "{{ paquetes_basicos }}"
+    state: present
+    
+- name: "Configurar zona horaria"
+  timezone:
+    name: "{{ laboratorio.zona_horaria }}"

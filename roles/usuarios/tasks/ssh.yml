@@ -1,0 +1,74 @@
+---
+# Tareas para configuración de SSH
+
+- name: Configurar SSH daemon
+  template:
+    src: sshd_config.j2
+    dest: /etc/ssh/sshd_config
+    backup: yes
+    mode: '0644'
+  notify: restart ssh
+  tags:
+    - ssh
+    - configuration
+
+- name: Crear directorio para claves SSH autorizadas
+  file:
+    path: /etc/ssh/authorized_keys
+    state: directory
+    mode: '0755'
+  tags:
+    - ssh
+    - directories
+
+- name: Configurar claves SSH para usuario administrador
+  authorized_key:
+    user: "{{ lab_admin_user.name }}"
+    key: "{{ lookup('file', '~/.ssh/id_rsa.pub') }}"
+    state: present
+  when: lookup('file', '~/.ssh/id_rsa.pub', errors='ignore')
+  tags:
+    - ssh
+    - keys
+    - admin
+
+- name: Deshabilitar autenticación por contraseña para root
+  lineinfile:
+    path: /etc/ssh/sshd_config
+    regexp: '^#?PermitRootLogin'
+    line: 'PermitRootLogin no'
+    backup: yes
+  notify: restart ssh
+  tags:
+    - ssh
+    - security
+
+- name: Configurar banner SSH
+  template:
+    src: ssh_banner.j2
+    dest: /etc/ssh/banner
+    mode: '0644'
+  notify: restart ssh
+  tags:
+    - ssh
+    - banner
+
+- name: Configurar fail2ban para SSH
+  package:
+    name: fail2ban
+    state: present
+  tags:
+    - ssh
+    - security
+    - fail2ban
+
+- name: Configurar jail SSH para fail2ban
+  template:
+    src: jail.local.j2
+    dest: /etc/fail2ban/jail.local
+    mode: '0644'
+  notify: restart fail2ban
+  tags:
+    - ssh
+    - security
+    - fail2ban

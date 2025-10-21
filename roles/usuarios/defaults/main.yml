@@ -1,0 +1,102 @@
+#SPDX-License-Identifier: MIT-0
+---
+# Variables por defecto para el rol usuarios_y_politicas
+
+# Configuración de usuarios base
+lab_admin_user:
+  name: "lab_admin"
+  groups: ["sudo", "adm"]
+  shell: "/bin/bash"
+  create_home: yes
+  password: "$6$salt$encrypted_password"  # Cambiar por hash real
+
+# Usuarios del laboratorio académico
+academic_users:
+  - name: "student01"
+    groups: ["users", "lab_users"]
+    shell: "/bin/bash"
+    create_home: yes
+  - name: "student02"
+    groups: ["users", "lab_users"]
+    shell: "/bin/bash"
+    create_home: yes
+  - name: "profesor"
+    groups: ["users", "lab_users", "professors"]
+    shell: "/bin/bash"
+    create_home: yes
+
+# Usuarios del laboratorio gaming
+gaming_users:
+  - name: "gamer01"
+    groups: ["users", "gaming"]
+    shell: "/bin/bash"
+    create_home: yes
+  - name: "gamer02"
+    groups: ["users", "gaming"]
+    shell: "/bin/bash"
+    create_home: yes
+
+# Grupos personalizados
+custom_groups:
+  - name: "lab_users"
+    gid: 2000
+  - name: "professors"
+    gid: 2001
+  - name: "gaming"
+    gid: 2002
+
+# Configuración de sudoers
+sudoers_config:
+  allow_sudo_group: true
+  passwordless_sudo: false
+  admin_users: ["lab_admin"]
+  restricted_commands:
+    - "/bin/systemctl"
+    - "/usr/bin/apt"
+    - "/usr/bin/dpkg"
+
+# Configuración de políticas de contraseñas
+password_policy:
+  min_length: 8
+  require_uppercase: true
+  require_lowercase: true
+  require_digit: true
+  require_special: false
+  max_age: 90
+  min_age: 1
+  warn_age: 7
+
+# Configuración de SSH
+ssh_policy:
+  allow_root_login: false
+  password_authentication: false
+  pubkey_authentication: true
+  max_auth_tries: 3
+  client_alive_interval: 300
+
+# Configuración de directorios compartidos
+shared_directories:
+  - path: "/opt/shared"
+    owner: "root"
+    group: "lab_users"
+    mode: "0775"
+  - path: "/home/shared"
+    owner: "root"
+    group: "lab_users"
+    mode: "0775"
+
+# Configuración de cuotas de disco
+disk_quotas:
+  enabled: false
+  user_soft_limit: "1G"
+  user_hard_limit: "2G"
+  group_soft_limit: "10G"
+  group_hard_limit: "15G"
+
+# Configuración de permisos especiales
+special_permissions:
+  sticky_bit_dirs:
+    - "/tmp"
+    - "/var/tmp"
+  setgid_dirs:
+    - "/opt/shared"

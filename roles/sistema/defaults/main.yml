@@ -1,0 +1,67 @@
+#SPDX-License-Identifier: MIT-0
+---
+# Variables por defecto para el rol gestion_procesos
+
+# Configuración de monitoreo de procesos
+process_monitoring:
+  enabled: true
+  interval: 30  # segundos
+  log_file: "/var/log/process_monitoring.log"
+
+# Servicios críticos a monitorear
+critical_services:
+  - ssh
+  - systemd-networkd
+  - systemd-resolved
+  - cron
+  - rsyslog
+
+# Configuración de alertas
+alerts:
+  enabled: true
+  high_cpu_threshold: 80
+  high_memory_threshold: 90
+  high_load_threshold: 2.0
+  notification_email: "admin@lab.local"
+
+# Configuración de logs de procesos
+process_logs:
+  enabled: true
+  retention_days: 7
+  max_size: "100M"
+
+# Herramientas de monitoreo a instalar
+monitoring_tools:
+  - htop
+  - iotop
+  - nethogs
+  - atop
+  - sysstat
+  - psmisc
+
+# Configuración de systemd
+systemd_config:
+  default_timeout_start: 90
+  default_timeout_stop: 30
+  journal_max_size: "100M"
+  journal_retain: "7day"
+
+# Configuración de límites de procesos
+process_limits:
+  max_processes_per_user: 1024
+  max_open_files: 65536
+  core_dump_limit: 0
+
+# Servicios que deben estar habilitados
+enabled_services: []
+
+# Servicios que deben estar deshabilitados
+disabled_services:
+  - cups
+  - bluetooth
+
+# Configuración de cron para mantenimiento
+maintenance_cron:
+  enabled: true
+  cleanup_logs: "0 2 * * 0"  # Domingos a las 2 AM
+  restart_services: "0 3 * * 1"  # Lunes a las 3 AM

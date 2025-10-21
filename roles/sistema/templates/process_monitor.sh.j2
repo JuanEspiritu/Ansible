@@ -1,0 +1,78 @@
+#!/bin/bash
+# Script de monitoreo de procesos para laboratorios
+# Generado por Ansible - No editar manualmente
+
+LOG_FILE="{{ process_monitoring.log_file }}"
+TIMESTAMP=$(date "+%Y-%m-%d %H:%M:%S")
+
+# Crear directorio de logs si no existe
+mkdir -p $(dirname "$LOG_FILE")
+
+# Función para logging
+log_message() {
+    echo "[$TIMESTAMP] $1" >> "$LOG_FILE"
+}
+
+# Función para verificar CPU alta
+check_high_cpu() {
+    local threshold={{ alerts.high_cpu_threshold }}
+    local cpu_usage=$(top -bn1 | grep "Cpu(s)" | awk '{print $2}' | sed 's/%us,//')
+    
+    if (( $(echo "$cpu_usage > $threshold" | bc -l) )); then
+        log_message "ALERT: High CPU usage detected: ${cpu_usage}%"
+        # Obtener procesos con mayor uso de CPU
+        ps -eo pid,ppid,cmd,%mem,%cpu --sort=-%cpu | head -10 >> "$LOG_FILE"
+    fi
+}
+
+# Función para verificar memoria alta
+check_high_memory() {
+    local threshold={{ alerts.high_memory_threshold }}
+    local mem_usage=$(free | grep Mem | awk '{printf("%.1f", ($3/$2) * 100.0)}')
+    
+    if (( $(echo "$mem_usage > $threshold" | bc -l) )); then
+        log_message "ALERT: High memory usage detected: ${mem_usage}%"
+        # Obtener procesos con mayor uso de memoria
+        ps -eo pid,ppid,cmd,%mem,%cpu --sort=-%mem | head -10 >> "$LOG_FILE"
+    fi
+}
+
+# Función para verificar servicios críticos
+check_critical_services() {
+    local services=({% for service in critical_services %}"{{ service }}" {% endfor %})
+    
+    for service in "${services[@]}"; do
+        if ! systemctl is-active --quiet "$service"; then
+            log_message "ALERT: Critical service $service is not running"
+        fi
+    done
+}
+
+# Función para obtener información del sistema
+get_system_info() {
+    log_message "=== SYSTEM INFO ==="
+    log_message "Load Average: $(uptime | awk -F'load average:' '{print $2}')"
+    log_message "Memory Usage: $(free -h | grep Mem)"
+    log_message "Disk Usage: $(df -h / | tail -1)"
+    log_message "Active Users: $(who | wc -l)"
+    log_message "Total Processes: $(ps aux | wc -l)"
+}
+
+# Función principal
+main() {
+    log_message "Starting process monitoring check"
+    
+    get_system_info
+    check_high_cpu
+    check_high_memory
+    check_critical_services
+    
+    log_message "Process monitoring check completed"
+    echo "---" >> "$LOG_FILE"
+}
+
+# Ejecutar función principal
+main
+
+# Limpiar logs antiguos (mantener solo los últimos {{ process_logs.retention_days }} días)
+find $(dirname "$LOG_FILE") -name "*.log" -type f -mtime +{{ process_logs.retention_days }} -delete

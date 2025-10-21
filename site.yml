@@ -1,0 +1,94 @@
+---
+# =============================================================================
+# PLAYBOOK PRINCIPAL - Configuración completa del laboratorio
+# =============================================================================
+# UN SOLO archivo para configurar TODO el laboratorio
+# Uso: ansible-playbook site.yml
+# =============================================================================
+
+- name: "🎯 LABORATORIO ACADÉMICO Y GAMING - Configuración Completa"
+  hosts: all
+  become: yes
+  gather_facts: yes
+  
+  pre_tasks:
+    - name: "🔍 Verificar conectividad"
+      ping:
+      tags: always
+      
+    - name: "📊 Mostrar información del sistema"
+      debug:
+        msg: |
+          🖥️  Host: {{ inventory_hostname }}
+          💻 Sistema: {{ ansible_distribution }} {{ ansible_distribution_version }}
+          🌐 IP: {{ ansible_default_ipv4.address | default('Sin IP') }}
+          🏷️  Tipo: {{ lab_type | default('general') }}
+      tags: always
+
+  roles:
+    # 1️⃣ SISTEMA - Configuración base (OS, paquetes básicos)
+    - role: sistema
+      tags: [sistema, base]
+      
+    # 2️⃣ SERVICIOS - SSH, DNS, DHCP, etc.
+    - role: servicios  
+      tags: [servicios, services]
+      
+    # 3️⃣ USUARIOS - Cuentas, permisos, grupos
+    - role: usuarios
+      tags: [usuarios, users]
+      
+    # 4️⃣ APLICACIONES - Software específico por laboratorio
+    - role: aplicaciones
+      tags: [aplicaciones, apps]
+
+  post_tasks:
+    - name: "✅ Configuración completada"
+      debug:
+        msg: |
+          🎉 ¡Configuración exitosa para {{ inventory_hostname }}!
+          
+          📋 Resumen:
+          - Sistema configurado: ✅
+          - Servicios activos: ✅  
+          - Usuarios creados: ✅
+          - Aplicaciones instaladas: ✅
+          
+          🚀 El sistema está listo para usar
+      tags: always
+
+# =============================================================================
+# PLAYBOOKS ESPECÍFICOS POR LABORATORIO (opcionales)
+# =============================================================================
+
+- name: "🎮 Configuración específica GAMING"
+  hosts: lab_gaming
+  become: yes
+  
+  tasks:
+    - name: "🎮 Configurar optimizaciones gaming"
+      include_tasks: "{{ item }}"
+      loop:
+        - roles/aplicaciones/tasks/gaming.yml
+      when: lab_type == 'gaming'
+      
+    - name: "🎮 Gaming configurado"
+      debug:
+        msg: "🎮 Laboratorio gaming listo - Steam, NVIDIA, etc."
+
+- name: "📚 Configuración específica ACADÉMICO"  
+  hosts: lab_academico
+  become: yes
+  
+  tasks:
+    - name: "📚 Configurar herramientas académicas"
+      include_tasks: "{{ item }}"
+      loop:
+        - roles/aplicaciones/tasks/academico.yml
+      when: lab_type == 'academic'
+      
+    - name: "📚 Académico configurado"
+      debug:
+        msg: "📚 Laboratorio académico listo - LibreOffice, Python, etc."
+
+# =============================================================================

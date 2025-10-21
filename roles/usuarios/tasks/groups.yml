@@ -1,0 +1,40 @@
+---
+# Tareas para gestión de grupos
+
+- name: Crear grupos personalizados
+  group:
+    name: "{{ item.name }}"
+    gid: "{{ item.gid | default(omit) }}"
+    state: present
+  loop: "{{ custom_groups }}"
+  tags:
+    - groups
+    - custom_groups
+
+- name: Verificar que el grupo sudo existe
+  group:
+    name: sudo
+    state: present
+  tags:
+    - groups
+    - sudo
+
+- name: Crear grupo específico para laboratorio académico
+  group:
+    name: lab_users
+    gid: 2000
+    state: present
+  when: lab_type is defined and lab_type == 'academico'
+  tags:
+    - groups
+    - academic
+
+- name: Crear grupo específico para laboratorio gaming
+  group:
+    name: gaming
+    gid: 2002
+    state: present
+  when: lab_type is defined and lab_type == 'gaming'
+  tags:
+    - groups
+    - gaming

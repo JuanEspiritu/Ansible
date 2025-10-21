@@ -1,0 +1,42 @@
+---
+# =============================================================================
+# PLAYBOOK BOOTSTRAP - Configurar Ubuntu Server vía conexión directa
+# =============================================================================
+
+- name: "� Bootstrap Ubuntu Server"
+  hosts: localhost
+  gather_facts: no
+  connection: local
+  become: no
+  
+  vars:
+    ubuntu_server_ip: "172.17.25.48"
+    
+  tasks:
+    - name: "📡 Verificar si Ubuntu Server responde a SSH"
+      wait_for:
+        host: "{{ ubuntu_server_ip }}"
+        port: 22
+        timeout: 10
+      register: ssh_check
+      ignore_errors: yes
+      
+    - name: "✅ SSH disponible - Configurar Ubuntu Server"
+      block:
+        - name: "� Configurar Ubuntu Server remotamente"
+          include_tasks: configure_ubuntu_tasks.yml
+      when: ssh_check is succeeded
+      
+    - name: "❌ SSH no disponible"
+      debug:
+        msg: |
+          Ubuntu Server ({{ ubuntu_server_ip }}) no responde en puerto 22.
+          
+          Posibles causas:
+          1. VM apagada
+          2. SSH no instalado/habilitado
+          3. Firewall bloqueando
+          4. Problema de red
+          
+          Solución: Encender VM y habilitar SSH
+      when: ssh_check is failed

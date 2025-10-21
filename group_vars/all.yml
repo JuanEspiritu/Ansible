@@ -1,0 +1,39 @@
+---
+# =============================================================================
+# VARIABLES GLOBALES - Para todas las máquinas
+# =============================================================================
+
+# Configuración básica del laboratorio
+laboratorio:
+  nombre: "Lab Académico y Gaming"
+  zona_horaria: "America/Mexico_City"
+
+# Red del laboratorio  
+red:
+  subred: "172.17.25.0/24"
+  gateway: "172.17.25.1"
+  dns: ["8.8.8.8", "8.8.4.4"]
+
+# Configuración SSH
+ssh:
+  puerto: 22
+  permitir_root: no
+  
+# Paquetes básicos para instalar
+paquetes_basicos:
+  - curl
+  - wget
+  - htop
+  - nano
+  - git
+
+# Configuración de seguridad
+seguridad:
+  firewall: true
+  fail2ban: true
+  
+# Usuarios base
+usuarios_base:
+  - nombre: ansible
+    shell: /bin/bash
+    sudo: yes

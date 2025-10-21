@@ -1,0 +1,53 @@
+# Configuración SSH para laboratorios
+# Generado por Ansible - No editar manualmente
+
+# Configuración básica
+Port {{ ssh_policy.port | default(22) }}
+Protocol 2
+
+# Autenticación
+PermitRootLogin {{ 'yes' if ssh_policy.allow_root_login else 'no' }}
+PasswordAuthentication {{ 'yes' if ssh_policy.password_authentication else 'no' }}
+PubkeyAuthentication {{ 'yes' if ssh_policy.pubkey_authentication else 'no' }}
+AuthorizedKeysFile	.ssh/authorized_keys
+
+# Límites de conexión
+MaxAuthTries {{ ssh_policy.max_auth_tries | default(3) }}
+MaxSessions 10
+MaxStartups 10:30:100
+
+# Configuración de sesión
+ClientAliveInterval {{ ssh_policy.client_alive_interval | default(300) }}
+ClientAliveCountMax 3
+TCPKeepAlive yes
+
+# Configuración de logging
+SyslogFacility AUTH
+LogLevel INFO
+
+# Configuración de ambiente
+AcceptEnv LANG LC_*
+
+# Banner de bienvenida
+{% if ssh_banner is defined %}
+Banner /etc/ssh/banner
+{% endif %}
+
+# Configuración de subsistemas
+Subsystem	sftp	/usr/lib/openssh/sftp-server
+
+# Configuración específica por grupo
+{% if lab_type is defined and lab_type == 'academico' %}
+# Restricciones para usuarios académicos
+Match Group lab_users
+    ForceCommand /usr/local/bin/lab_shell_wrapper
+    X11Forwarding no
+    AllowTcpForwarding no
+{% endif %}
+
+{% if lab_type is defined and lab_type == 'gaming' %}
+# Configuración para usuarios gaming
+Match Group gaming
+    X11Forwarding yes
+    AllowTcpForwarding yes
+{% endif %}

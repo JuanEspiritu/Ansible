@@ -1,0 +1,16 @@
+---
+# Variables para el laboratorio gaming
+
+# Software gaming
+software_gaming:
+  - steam
+  - lutris
+  - wine
+  - gamemode
+  - nvidia-driver-470
+
+# Configuración específica
+configuracion:
+  modo_energia: alto_rendimiento
+  actualizaciones: manuales
+  acceso_internet: completo

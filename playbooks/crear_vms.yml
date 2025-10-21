@@ -1,0 +1,188 @@
+---
+# Playbook para crear máquinas virtuales en VMware vCenter
+- name: Crear Máquinas Virtuales en VMware vCenter
+  hosts: localhost
+  gather_facts: no
+  connection: local
+  become: false
+  
+  vars:
+    # Configuración de VMware vCenter (puerto correcto)
+    vcenter_config:
+      hostname: "168.121.48.254"
+      username: "root"
+      password: "qwe123$"
+      port: 10123  # Puerto que SÍ responde
+      validate_certs: false
+      datacenter: "ha-datacenter"
+      cluster: "cluster"
+      datastore: "datastore1"
+      folder: "/"  # Carpeta raíz para las VMs
+
+    # VMs simplificadas - Solo 3 VMs como solicita el usuario
+    vms_to_create:
+      - name: "Pop_OS_LTS_With_Nvidia"
+        guest_id: "ubuntu64Guest"
+        cpu: 4
+        memory: 6144  # 6 GB para soporte gaming
+        disk: 70      # 70 GB
+        iso_path: "[datastore1] JuanEspiritu/pop-os_22.04_amd64_nvidia_56.iso"
+        description: "Pop OS LTS con soporte Nvidia para gaming"
+        ipv6_address: "2001:db8:200::10"
+        
+      - name: "Pop_OS_LTS"
+        guest_id: "ubuntu64Guest"
+        cpu: 2
+        memory: 4096  # 4 GB
+        disk: 30      # 30 GB
+        iso_path: "[datastore1] JuanEspiritu/pop-os_22.04_amd64_intel_56.iso"
+        description: "Pop OS LTS estándar para uso general"
+        ipv6_address: "2001:db8:100::10"
+        
+      - name: "Ubuntu_Server"
+        guest_id: "ubuntu64Guest"
+        cpu: 2
+        memory: 2048  # 2 GB para servidor
+        disk: 30      # 30 GB
+        iso_path: "[datastore1] JuanEspiritu/ubuntu-24.04.3-live-server-amd64.iso"
+        description: "Ubuntu Server para compartir internet y gateway"
+        ipv6_address: "2001:db8:1::10"
+
+  pre_tasks:
+    - name: Verificar dependencias Python para VMware (usuario local)
+      pip:
+        name:
+          - pyvmomi
+          - requests
+        state: present
+        extra_args: --user
+      tags: dependencies
+
+    - name: Verificar conexión con vCenter
+      vmware_about_info:
+        hostname: "{{ vcenter_config.hostname }}"
+        username: "{{ vcenter_config.username }}"
+        password: "{{ vcenter_config.password }}"
+        port: "{{ vcenter_config.port }}"
+        validate_certs: "{{ vcenter_config.validate_certs }}"
+      register: vcenter_info
+      tags: verification
+
+    - name: Mostrar información de vCenter
+      debug:
+        msg: 
+          - "✅ CONECTADO AL VCENTER EXITOSAMENTE!"
+          - "Puerto usado: {{ vcenter_config.port }}"
+          - "Info disponible: {{ vcenter_info.keys() | list }}"
+      tags: verification
+
+  tasks:
+    - name: Crear máquinas virtuales
+      vmware_guest:
+        hostname: "{{ vcenter_config.hostname }}"
+        username: "{{ vcenter_config.username }}"
+        password: "{{ vcenter_config.password }}"
+        port: "{{ vcenter_config.port }}"
+        validate_certs: "{{ vcenter_config.validate_certs }}"
+        datacenter: "{{ vcenter_config.datacenter }}"
+        folder: "{{ vcenter_config.folder }}"
+        name: "{{ item.name }}"
+        state: poweredoff  # Crear apagada inicialmente
+        guest_id: "{{ item.guest_id }}"
+        annotation: "{{ item.description }}"
+        hardware:
+          memory_mb: "{{ item.memory }}"
+          num_cpus: "{{ item.cpu }}"
+          boot_firmware: bios
+          version: 15
+        disk:
+          - size_gb: "{{ item.disk }}"
+            type: thin
+            datastore: "{{ vcenter_config.datastore }}"
+        networks:
+          - name: "VM Network"
+            device_type: vmxnet3
+        cdrom:
+          - controller_type: ide
+            controller_number: 1  
+            unit_number: 0
+            type: iso
+            iso_path: "{{ item.iso_path }}"
+            state: present
+        customvalues:
+          - key: "Created_by"
+            value: "Ansible_Lab_Setup"
+          - key: "Purpose" 
+            value: "{{ item.description }}"
+        wait_for_ip_address: false
+      loop: "{{ vms_to_create }}"
+      register: vm_creation
+      tags: vm_creation
+
+    - name: Configurar orden de arranque (CD-ROM primero)
+      vmware_guest_boot_manager:
+        hostname: "{{ vcenter_config.hostname }}"
+        username: "{{ vcenter_config.username }}"
+        password: "{{ vcenter_config.password }}"
+        port: "{{ vcenter_config.port }}"
+        validate_certs: "{{ vcenter_config.validate_certs }}"
+        name: "{{ item.name }}"
+        boot_order:
+          - cdrom
+          - disk
+          - ethernet
+      loop: "{{ vms_to_create }}"
+      tags: boot_config
+
+    - name: Encender máquinas virtuales
+      vmware_guest_powerstate:
+        hostname: "{{ vcenter_config.hostname }}"
+        username: "{{ vcenter_config.username }}"
+        password: "{{ vcenter_config.password }}"
+        port: "{{ vcenter_config.port }}"
+        validate_certs: "{{ vcenter_config.validate_certs }}"
+        name: "{{ item.name }}"
+        state: powered-on
+        state_change_timeout: 120
+      loop: "{{ vms_to_create }}"
+      tags: power_on
+
+  post_tasks:
+    - name: Verificar estado final de las VMs
+      vmware_guest_info:
+        hostname: "{{ vcenter_config.hostname }}"
+        username: "{{ vcenter_config.username }}"
+        password: "{{ vcenter_config.password }}"
+        port: "{{ vcenter_config.port }}"
+        validate_certs: "{{ vcenter_config.validate_certs }}"
+        datacenter: "{{ vcenter_config.datacenter }}"
+        folder: "{{ vcenter_config.folder }}"
+        name: "{{ item.name }}"
+      loop: "{{ vms_to_create }}"
+      register: final_vm_info
+      tags: verification
+
+    - name: Mostrar resumen de VMs creadas
+      debug:
+        msg:
+          - "============================================"
+          - "VM: {{ item.item.name }}"
+          - "Estado: {{ item.instance.hw_power_status }}"
+          - "CPU: {{ item.instance.hw_processor_count }} cores"
+          - "Memoria: {{ item.instance.hw_memtotal_mb }} MB"
+          - "Discos: {{ item.instance.hw_files | length }}"
+          - "Red: {{ item.instance.hw_eth0.macaddress | default('No configurada') }}"
+          - "============================================"
+      loop: "{{ final_vm_info.results }}"
+      tags: verification
+
+    - name: Instrucciones post-creación
+      debug:
+        msg:
+          - "✅ VMs creadas exitosamente!"
+          - ""  
+          - "👉 Siguiente paso: Instalar sistemas operativos en vCenter"
+          - "👉 Luego ejecutar: ansible-playbook site.yml"
+          - ""
+          - "� Guía completa: README_SIMPLE.md"
+      tags: always

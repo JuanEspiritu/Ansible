@@ -1,0 +1,27 @@
+# Configuración de sudoers para laboratorios
+# Generado por Ansible - No editar manualmente
+
+# Configuración por defecto
+Defaults	env_reset
+Defaults	mail_badpass
+Defaults	secure_path="/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/snap/bin"
+
+# Host alias specification
+Host_Alias	LAB_HOSTS = ALL
+
+# User alias specification
+User_Alias	ADMINS = {% for user in sudoers_config.admin_users %}{{ user }}{% if not loop.last %}, {% endif %}{% endfor %}
+
+# Cmnd alias specification
+Cmnd_Alias	RESTRICTED_CMDS = {% for cmd in sudoers_config.restricted_commands %}{{ cmd }}{% if not loop.last %}, {% endif %}{% endfor %}
+
+# User privilege specification
+root	ALL=(ALL:ALL) ALL
+
+# Allow members of group sudo to execute any command
+{% if sudoers_config.allow_sudo_group %}
+%sudo	ALL=(ALL:ALL) {% if sudoers_config.passwordless_sudo %}NOPASSWD: {% endif %}ALL
+{% endif %}
+
+# See sudoers(5) for more information on "#include" directives:
+#includedir /etc/sudoers.d

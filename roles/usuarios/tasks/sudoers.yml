@@ -1,0 +1,62 @@
+---
+# Tareas para configuración de sudoers
+
+- name: Instalar sudo si no está presente
+  package:
+    name: sudo
+    state: present
+  tags:
+    - sudoers
+    - packages
+
+- name: Configurar sudoers principal
+  template:
+    src: sudoers.j2
+    dest: /etc/sudoers
+    backup: yes
+    validate: 'visudo -cf %s'
+    mode: '0440'
+  tags:
+    - sudoers
+    - configuration
+
+- name: Crear archivo sudoers para administradores de laboratorio
+  template:
+    src: lab_admin_sudoers.j2
+    dest: /etc/sudoers.d/lab_admin
+    validate: 'visudo -cf %s'
+    mode: '0440'
+  tags:
+    - sudoers
+    - lab_admin
+
+- name: Crear archivo sudoers para usuarios académicos
+  template:
+    src: academic_sudoers.j2
+    dest: /etc/sudoers.d/academic_users
+    validate: 'visudo -cf %s'
+    mode: '0440'
+  when: lab_type is defined and lab_type == 'academico'
+  tags:
+    - sudoers
+    - academic
+
+- name: Crear archivo sudoers para usuarios gaming
+  template:
+    src: gaming_sudoers.j2
+    dest: /etc/sudoers.d/gaming_users
+    validate: 'visudo -cf %s'
+    mode: '0440'
+  when: lab_type is defined and lab_type == 'gaming'
+  tags:
+    - sudoers
+    - gaming
+
+- name: Verificar configuración de sudoers
+  command: visudo -c
+  register: sudoers_check
+  failed_when: sudoers_check.rc != 0
+  changed_when: false
+  tags:
+    - sudoers
+    - verification

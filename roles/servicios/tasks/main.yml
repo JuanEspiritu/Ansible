@@ -1,0 +1,12 @@
+---
+# Tareas de configuración de servicios
+- name: "Instalar SSH"
+  apt:
+    name: openssh-server
+    state: present
+    
+- name: "Iniciar servicio SSH"
+  service:
+    name: ssh
+    state: started
+    enabled: yes

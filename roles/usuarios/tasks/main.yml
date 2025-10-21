@@ -1,0 +1,51 @@
+---
+# Tareas de gestión de usuarios
+- name: "Crear usuario ansible"
+  user:
+    name: "{{ item.nombre }}"
+    shell: "{{ item.shell }}"
+    groups: sudo
+    state: present
+  loop: "{{ usuarios_base }}"
+
+- name: Incluir tareas de gestión de grupos
+  include_tasks: groups.yml
+  tags:
+    - usuarios_y_politicas
+    - groups
+
+- name: Incluir tareas de gestión de usuarios
+  include_tasks: users.yml
+  tags:
+    - usuarios_y_politicas
+    - users
+
+- name: Incluir tareas de configuración de sudoers
+  include_tasks: sudoers.yml
+  tags:
+    - usuarios_y_politicas
+    - sudoers
+
+- name: Incluir tareas de configuración de SSH
+  include_tasks: ssh.yml
+  tags:
+    - usuarios_y_politicas
+    - ssh
+
+- name: Incluir tareas de configuración de directorios
+  include_tasks: directories.yml
+  tags:
+    - usuarios_y_politicas
+    - directories
+
+- name: Incluir tareas de políticas de contraseñas
+  include_tasks: password_policy.yml
+  tags:
+    - usuarios_y_politicas
+    - password_policy
+
+- name: Incluir tareas de permisos especiales
+  include_tasks: permissions.yml
+  tags:
+    - usuarios_y_politicas
+    - permissions

@@ -1,0 +1,15 @@
+---
+# Variables para servidores Ubuntu
+
+# Servicios del servidor
+servicios_servidor:
+  - ssh
+  - nginx
+  - ufw
+  - fail2ban
+
+# Configuración específica
+configuracion:
+  modo_energia: servidor
+  actualizaciones: automaticas_seguridad
+  acceso_internet: completo

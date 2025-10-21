@@ -1,0 +1,31 @@
+# Configuración de límites del sistema para laboratorios
+# Generado por Ansible - No editar manualmente
+
+# Límites para todos los usuarios
+* soft nofile {{ process_limits.max_open_files }}
+* hard nofile {{ process_limits.max_open_files }}
+* soft nproc {{ process_limits.max_processes_per_user }}
+* hard nproc {{ process_limits.max_processes_per_user }}
+* hard core {{ process_limits.core_dump_limit }}
+
+# Límites específicos para root
+root soft nofile {{ process_limits.max_open_files }}
+root hard nofile {{ process_limits.max_open_files }}
+root soft nproc unlimited
+root hard nproc unlimited
+
+# Límites para usuarios del laboratorio académico
+{% if lab_type is defined and lab_type == 'academico' %}
+student soft nproc 512
+student hard nproc 1024
+student soft nofile 4096
+student hard nofile 8192
+{% endif %}
+
+# Límites para usuarios del laboratorio gaming
+{% if lab_type is defined and lab_type == 'gaming' %}
+gamer soft nproc 2048
+gamer hard nproc 4096
+gamer soft nofile 8192
+gamer hard nofile 16384
+{% endif %}

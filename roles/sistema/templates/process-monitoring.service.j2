@@ -1,0 +1,14 @@
+[Unit]
+Description=Lab Process Monitoring Service
+After=multi-user.target
+
+[Service]
+Type=simple
+ExecStart=/opt/lab_monitoring/process_monitor.sh
+Restart=always
+RestartSec={{ process_monitoring.interval }}
+User=root
+Group=root
+
+[Install]
+WantedBy=multi-user.target

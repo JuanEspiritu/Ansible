@@ -1,0 +1,106 @@
+#SPDX-License-Identifier: MIT-0
+---
+# Variables por defecto para el rol automatizacion_tareas
+
+# Configuración de cron jobs
+cron_jobs:
+  # Limpieza de logs del sistema
+  - name: "cleanup_system_logs"
+    minute: "0"
+    hour: "2"
+    day: "*"
+    month: "*"
+    weekday: "0"
+    job: "/opt/scripts/cleanup_logs.sh"
+    user: "root"
+    state: "present"
+  
+  # Backup de configuraciones
+  - name: "backup_configs"
+    minute: "30"
+    hour: "3"
+    day: "*"
+    month: "*"
+    weekday: "*"
+    job: "/opt/scripts/backup_configs.sh"
+    user: "root"
+    state: "present"
+  
+  # Verificación de salud del sistema
+  - name: "system_health_check"
+    minute: "*/30"
+    hour: "*"
+    day: "*"
+    month: "*"
+    weekday: "*"
+    job: "/opt/scripts/health_check.sh"
+    user: "root"
+    state: "present"
+
+# Configuración de systemd timers
+systemd_timers:
+  # Timer para limpieza de archivos temporales
+  - name: "cleanup-temp-files"
+    description: "Limpieza automática de archivos temporales"
+    on_calendar: "daily"
+    script: "/opt/scripts/cleanup_temp.sh"
+    user: "root"
+    enabled: true
+  
+  # Timer para actualizaciones de seguridad
+  - name: "security-updates"
+    description: "Instalación automática de actualizaciones de seguridad"
+    on_calendar: "weekly"
+    script: "/opt/scripts/security_updates.sh"
+    user: "root"
+    enabled: true
+  
+  # Timer para reinicio de servicios
+  - name: "service-restart"
+    description: "Reinicio programado de servicios críticos"
+    on_calendar: "weekly"
+    script: "/opt/scripts/restart_services.sh"
+    user: "root"
+    enabled: false
+
+# Scripts de automatización
+automation_scripts:
+  enabled: true
+  scripts_directory: "/opt/scripts"
+  log_directory: "/var/log/automation"
+  backup_directory: "/opt/backups"
+
+# Configuración de limpieza automática
+cleanup_config:
+  temp_files_age: 7  # días
+  log_files_age: 30  # días
+  backup_retention: 14  # días
+  cache_cleanup: true
+
+# Configuración de mantenimiento
+maintenance_config:
+  automatic_updates: true
+  security_only: true
+  reboot_required: false
+  maintenance_window: "02:00-04:00"
+
+# Configuración de monitoreo automático
+monitoring_automation:
+  disk_space_threshold: 80
+  memory_threshold: 90
+  cpu_threshold: 85
+  check_interval: 300  # segundos
+
+# Configuración específica para laboratorio académico
+academic_automation:
+  session_cleanup: true
+  user_data_backup: true
+  software_updates: true
+  content_filter_update: true
+
+# Configuración específica para laboratorio gaming
+gaming_automation:
+  game_cache_cleanup: true
+  driver_updates: true
+  performance_optimization: true
+  steam_cache_management: true

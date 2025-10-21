@@ -1,0 +1,16 @@
+---
+# Variables para estaciones Pop OS
+
+# Software básico para estaciones
+software_estaciones:
+  - firefox
+  - libreoffice
+  - vlc
+  - gimp
+  - git
+
+# Configuración específica
+configuracion:
+  modo_energia: balanceado
+  actualizaciones: automaticas
+  acceso_internet: completo

@@ -1,0 +1,83 @@
+---
+# =============================================================================
+# PLAYBOOK BOOTSTRAP - Configurar Ubuntu Server desde la misma máquina
+# =============================================================================
+
+- name: "🔧 Configuración Bootstrap de Ubuntu Server"
+  hosts: localhost
+  connection: local
+  gather_facts: no
+  become: no
+  
+  vars:
+    vcenter_host: "168.121.48.254"
+    vcenter_port: 10123
+    vcenter_user: "root" 
+    vcenter_pass: "qwe123$"
+    vm_name: "Ubuntu_Server"
+    
+  tasks:
+    - name: "📡 Ejecutar comandos en Ubuntu Server via vCenter"
+      uri:
+        url: "https://{{ vcenter_host }}:{{ vcenter_port }}/api/vcenter/vm"
+        method: GET
+        validate_certs: no
+        headers:
+          Authorization: "Basic {{ (vcenter_user + ':' + vcenter_pass) | b64encode }}"
+      register: vm_list
+      ignore_errors: yes
+      
+    - name: "📋 Mostrar resultado"
+      debug:
+        var: vm_list
+        
+- name: "🚀 Configuración directa en Ubuntu Server (ejecución local)"
+  hosts: localhost
+  connection: local
+  become: no
+  
+  tasks:
+    - name: "📝 Crear script de configuración"
+      copy:
+        content: |
+          #!/bin/bash
+          echo "🔧 Configurando Ubuntu Server para conectividad..."
+          
+          # Crear configuración netplan para red local
+          cat > /tmp/netplan-config.yaml << 'EOF'
+          network:
+            version: 2
+            ethernets:
+              ens192:
+                dhcp4: false
+                addresses:
+                  - 192.168.0.48/24
+                gateway4: 192.168.0.1
+                nameservers:
+                  addresses:
+                    - 8.8.8.8
+                    - 8.8.4.4
+          EOF
+          
+          echo "✅ Script de configuración creado en /tmp/netplan-config.yaml"
+          echo "📋 Para aplicar ejecuta en Ubuntu Server:"
+          echo "    sudo cp /tmp/netplan-config.yaml /etc/netplan/00-installer-config.yaml"
+          echo "    sudo netplan apply"
+          
+        dest: /tmp/configure_ubuntu_server.sh
+        mode: '0755'
+        
+    - name: "📢 Instrucciones de configuración"
+      debug:
+        msg: |
+          🎯 SIGUIENTE PASO:
+          
+          1. Copia este archivo al Ubuntu Server:
+             scp /tmp/configure_ubuntu_server.sh ubuntu@172.17.25.48:/tmp/
+             
+          2. O ejecuta manualmente en Ubuntu Server:
+             sudo nano /etc/netplan/00-installer-config.yaml
+             
+          3. Configura la red para que coincida con tu Mac (192.168.0.x)
+          
+          4. Luego ejecuta: ansible-playbook site.yml --ask-pass

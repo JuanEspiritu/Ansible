@@ -1,0 +1,24 @@
+---
+# ROL: SISTEMA - Configuración base del sistema operativo
+
+- name: "📦 Actualizar repositorios"
+  apt:
+    update_cache: yes
+    upgrade: safe
+  tags: [sistema]
+
+- name: "📦 Instalar paquetes básicos"
+  apt:
+    name: "{{ paquetes_basicos }}"
+    state: present
+  tags: [sistema]
+
+- name: "🕐 Configurar zona horaria"
+  timezone:
+    name: "{{ tiempo.zona_horaria }}"
+  tags: [sistema]
+
+- name: "✅ Sistema base configurado"
+  debug:
+    msg: "Sistema base listo: paquetes + zona horaria"
+  tags: [sistema]

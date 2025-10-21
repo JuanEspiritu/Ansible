@@ -1,0 +1,16 @@
+---
+# Variables para el laboratorio académico
+
+# Software educativo
+software_academico:
+  - libreoffice
+  - firefox
+  - thunderbird
+  - gimp
+  - python3
+
+# Configuración específica
+configuracion:
+  modo_energia: balanceado
+  actualizaciones: automaticas
+  acceso_internet: limitado

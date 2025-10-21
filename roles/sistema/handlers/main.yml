@@ -1,0 +1,27 @@
+#SPDX-License-Identifier: MIT-0
+---
+# Handlers para el rol gestion_procesos
+
+- name: reload systemd
+  systemd:
+    daemon_reload: yes
+  listen: "reload systemd"
+
+- name: restart systemd-logind
+  systemd:
+    name: systemd-logind
+    state: restarted
+  listen: "restart systemd-logind"
+
+- name: start process-monitoring
+  systemd:
+    name: process-monitoring
+    state: started
+    enabled: yes
+  listen: "start process-monitoring"
+
+- name: restart process-monitoring
+  systemd:
+    name: process-monitoring
+    state: restarted
+  listen: "restart process-monitoring"

@@ -1,0 +1,29 @@
+===============================================================================
+                    SISTEMA DE LABORATORIO - {{ lab_type | upper | default('GENERICO') }}
+===============================================================================
+
+¡BIENVENIDO AL SISTEMA!
+
+Este sistema es para uso exclusivo de estudiantes y personal autorizado.
+Todas las actividades son monitoreadas y registradas.
+
+{% if lab_type is defined and lab_type == 'academico' %}
+LABORATORIO ACADÉMICO:
+- Acceso limitado a herramientas educativas
+- Sesiones con tiempo limitado
+- Contenido filtrado y supervisado
+{% elif lab_type is defined and lab_type == 'gaming' %}
+LABORATORIO GAMING:
+- Acceso a plataformas de juegos
+- Hardware optimizado para gaming
+- Conexión de alta velocidad
+{% endif %}
+
+POLÍTICAS DE USO:
+- No compartir credenciales
+- Respetar los recursos del sistema
+- Reportar cualquier problema al administrador
+
+Contacto técnico: {{ alerts.notification_email | default('admin@lab.local') }}
+
+===============================================================================
