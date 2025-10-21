@@ -1,228 +1,178 @@
 # 🎯 LABORATORIO ACADÉMICO Y GAMING - ANSIBLE
 
-## � Estructura del Proyecto
+## ✅ ESTADO ACTUAL DEL PROYECTO
+
+### 🎉 **LOGRADO HASTA AHORA:**
+- ✅ **VMs CREADAS EN VCENTER** - ¡3 máquinas virtuales funcionando!
+- ✅ **ARQUITECTURA ANSIBLE COMPLETA** - Todo automatizado
+- ✅ **ESTRUCTURA SIMPLIFICADA** - Organización perfecta
+- ✅ **ROLES MODULARES** - 4 roles principales listos
+- ✅ **INVENTARIO CONFIGURADO** - Hosts organizados por función
+
+### 🏗️ **INFRAESTRUCTURA CREADA:**
+
+#### 🖥️ **VMs en vCenter (168.121.48.254:10123):**
+1. **Pop_OS_LTS_With_Nvidia** 
+   - 🎮 **Para Gaming** - 4 CPU, 6GB RAM, 70GB disco
+   - 🌐 MAC: 00:0c:29:c7:ad:2d
+   - ✅ Estado: ENCENDIDA y lista
+
+2. **Pop_OS_LTS**
+   - 📚 **Para Académico** - 2 CPU, 4GB RAM, 30GB disco  
+   - 🌐 MAC: 00:0c:29:fd:e9:4d
+   - ✅ Estado: ENCENDIDA y lista
+
+3. **Ubuntu_Server**
+   - ⚙️ **Servidor Central** - 2 CPU, 2GB RAM, 30GB disco
+   - 🌐 MAC: 00:0c:29:a8:a5:23
+   - ✅ Estado: ENCENDIDA y lista
+
+## 📁 Estructura del Proyecto SIMPLIFICADA
 
 ```
 ansible-proyecto/
-├── ansible.cfg                    # Configuración principal de Ansible
-├── inventory/                     # Inventarios organizados por entorno
-│   └── production/
-│       ├── hosts.yml             # Definición de hosts
-│       └── group_vars/           # Variables por grupos
-├── roles/                        # Roles unificados multi-plataforma
-│   ├── base/                     # Configuración base del sistema
-│   │   ├── tasks/
-│   │   │   ├── main.yml         # Distribuidor principal
-│   │   │   ├── linux/           # Tareas específicas Linux
-│   │   │   └── windows/         # Tareas específicas Windows
-│   │   ├── defaults/
-│   │   └── handlers/
-│   ├── services/                 # Gestión de servicios
-│   ├── users/                    # Gestión de usuarios
-│   ├── storage/                  # Configuración de almacenamiento
-│   ├── gaming/                   # Gaming Center (Steam, etc.)
-│   └── audit/                    # Auditoría y monitoreo
-├── unified_playbooks/            # Playbooks unificados
-│   ├── base.yml                 # Configuración base
-│   ├── gaming.yml               # Gaming Center completo
-│   ├── services.yml             # Servicios
-│   └── complete.yml             # Configuración completa
-└── playbooks/
-    ├── main.yml                 # Playbook principal
-    └── crear_vms.yml            # Creación de VMs
-```
-
-## 🚀 Uso Simple
-
-### Configuración completa:
-```bash
-ansible-playbook playbooks/main.yml
-```
-
-### Solo gaming:
-```bash
-ansible-playbook unified_playbooks/gaming.yml
-```
-
-### Solo servicios:
-```bash
-ansible-playbook unified_playbooks/services.yml
-```
-
-## 🎯 Grupos de Hosts
-
-- **lab_gaming**: VMs para gaming
-- **lab_academico**: VMs académicas  
-- **ubuntu_servers**: Servidores Ubuntu
-- **vmware_infrastructure**: vCenter
-
----
-**Estructura simplificada y organizada - Sin archivos confusos** ✨
-│   ├── ⚙️ automatizacion_tareas/      # 3️⃣ TERCERO: Tareas automatizadas
-│   └── 💾 almacenamiento_y_fs/        # 4️⃣ CUARTO: Almacenamiento y FS
-│
+├── 📄 site.yml                       # ¡PLAYBOOK PRINCIPAL! (Solo ejecutar este)
+├── ⚙️ ansible.cfg                    # Configuración principal
 ├── 📁 inventory/
-│   └── 🎯 hosts.yml                   # INVENTARIO PRINCIPAL
-│
-├── 📁 group_vars/                     # Variables por grupos
-│   ├── ubuntu_servers.yml             # Variables para Ubuntu Server
-│   ├── pop_os_vms.yml                 # Variables para Pop OS VMs
-│   ├── lab_academico.yml              # Variables del lab académico
-│   └── lab_gaming.yml                 # Variables del lab gaming
-│
-├── 📁 host_vars/                      # Variables por host específico
-│
-├── ⚙️ ansible.cfg                     # Configuración principal de Ansible
-│
-└── 📚 README.md                       # Esta documentación
+│   └── 🎯 hosts.yml                  # INVENTARIO (3 VMs definidas)
+├── 📁 group_vars/                    # Variables por grupos
+│   ├── ubuntu_servers.yml            # Variables Ubuntu Server
+│   ├── pop_gaming.yml                # Variables Pop OS Gaming
+│   └── pop_academico.yml             # Variables Pop OS Académico
+├── 📁 roles/                         # 4 ROLES PRINCIPALES
+│   ├── 1️⃣ sistema/                  # Configuración base
+│   ├── 2️⃣ servicios/                # Servicios del sistema
+│   ├── 3️⃣ usuarios/                 # Gestión de usuarios
+│   └── 4️⃣ aplicaciones/             # Software y apps
+├── 📁 playbooks/
+│   └── 🏗️ crear_vms.yml             # ✅ USADO - Crear VMs (YA EJECUTADO)
+└── 📁 templates/                     # Plantillas de configuración
+    └── netplan-config.j2             # Configuración de red
 ```
 
-## **🎯 Ejecución del Playbook Principal**
+## 🚀 COMANDOS PRINCIPALES
 
-### **Comando principal (Ejecutar TODO):**
+### **🎯 Crear VMs (YA EJECUTADO):**
 ```bash
-ansible-playbook playbooks/main.yml
+✅ ansible-playbook playbooks/crear_vms.yml -e "ansible_become=false"
+# ✅ ¡3 VMs ya creadas exitosamente!
 ```
 
-### **Ejecutar rol específico:**
+### **⚙️ Configurar TODO el laboratorio:**
 ```bash
-# Solo gestión de procesos
-ansible-playbook playbooks/main.yml --tags gestion_procesos
-
-# Solo usuarios y políticas  
-ansible-playbook playbooks/main.yml --tags usuarios_y_politicas
-
-# Solo automatización de tareas
-ansible-playbook playbooks/main.yml --tags automatizacion_tareas
-
-# Solo almacenamiento y sistemas de archivos
-ansible-playbook playbooks/main.yml --tags almacenamiento_y_fs
+ansible-playbook site.yml
+# Ejecuta los 4 roles en las 3 VMs
 ```
 
-### **Ejecutar en grupo específico:**
+### **🔧 Configurar solo una VM:**
 ```bash
-# Solo servidores Ubuntu
-ansible-playbook playbooks/main.yml --limit ubuntu_servers
+# Solo Ubuntu Server
+ansible-playbook site.yml --limit ubuntu_server
 
-# Solo VMs Pop OS
-ansible-playbook playbooks/main.yml --limit pop_os_vms
+# Solo Pop OS Gaming  
+ansible-playbook site.yml --limit pop_gaming
 
-# Solo laboratorio académico
-ansible-playbook playbooks/main.yml --limit lab_academico
-
-# Solo laboratorio gaming
-ansible-playbook playbooks/main.yml --limit lab_gaming
+# Solo Pop OS Académico
+ansible-playbook site.yml --limit pop_academico
 ```
 
-## **🔄 Orden de Ejecución de los Roles**
-
-El sistema ejecuta los roles en un orden específico para garantizar dependencias correctas:
-
-### **1️⃣ gestion_procesos** (PRIMERO)
-- ✅ Configura servicios base del sistema
-- ✅ Habilita SSH, DHCP, DNS según el tipo de sistema
-- ✅ Configura monitoreo y seguridad básica
-- ✅ Prepara la base para otros roles
-
-### **2️⃣ usuarios_y_politicas** (SEGUNDO)  
-- ✅ Crea usuarios del laboratorio (students, gamers, admins)
-- ✅ Configura políticas de seguridad
-- ✅ Establece permisos y grupos
-- ✅ Configura acceso SSH por usuario
-
-### **3️⃣ automatizacion_tareas** (TERCERO)
-- ✅ Configura tareas cron automáticas
-- ✅ Establece respaldos automatizados
-- ✅ Configura mantenimiento del sistema
-- ✅ Establece monitoreo automatizado
-
-### **4️⃣ almacenamiento_y_fs** (CUARTO - ÚLTIMO)
-- ✅ Configura sistemas de archivos
-- ✅ Establece cuotas de almacenamiento
-- ✅ Optimiza rendimiento de disco
-- ✅ Configura estructura de directorios
-
-## **🎯 Sistemas Objetivo**
-
-### **🖥️ Ubuntu Server (Infraestructura)**
-- **Función:** Servidor central del laboratorio
-- **Servicios:** DHCP, DNS, SSH, Monitoreo
-- **IP:** 172.17.25.87
-- **Usuario:** ubuntu / ubuntu
-
-### **🎮 Pop OS Gaming** 
-- **Función:** Estación de trabajo gaming
-- **Características:** GPU, Software gaming, Alto rendimiento
-- **Usuario:** gamer / gaming123
-
-### **📚 Pop OS Académico**
-- **Función:** Estación de trabajo académica
-- **Características:** Software educativo, Restricciones de seguridad
-- **Usuario:** student / student123
-
-## **📊 Estado Actual del Proyecto**
-
-### ✅ **COMPLETADO:**
-- ✅ Arquitectura modular definida
-- ✅ Playbook principal (`main.yml`) creado
-- ✅ Inventario principal organizado
-- ✅ 4 roles principales estructurados con README completos
-- ✅ Variables organizadas por grupos y hosts
-- ✅ Documentación completa de la arquitectura
-
-### 🔨 **EN PROCESO:**
-- 🔨 Configuración de Ubuntu Server con SSH + GNOME Desktop
-- 🔨 Pruebas de conectividad SSH
-- 🔨 Validación de roles individuales
-
-### 🎯 **SIGUIENTE PASO:**
-Una vez que Ubuntu Server esté completamente configurado con SSH habilitado, ejecutar:
-
+### **📋 Configurar solo un rol:**
 ```bash
-ansible-playbook playbooks/main.yml --limit ubuntu_server -v
+# Solo configuración del sistema
+ansible-playbook site.yml --tags sistema
+
+# Solo servicios
+ansible-playbook site.yml --tags servicios
+
+# Solo usuarios
+ansible-playbook site.yml --tags usuarios
+
+# Solo aplicaciones
+ansible-playbook site.yml --tags aplicaciones
 ```
 
-## **🔧 Configuración Actual**
+## 🎯 MÁQUINAS VIRTUALES CREADAS
+
+| VM | Función | Especificaciones | Estado |
+|---|---|---|---|
+| **Ubuntu_Server** | Servidor central | 2 CPU, 2GB RAM, 30GB | ✅ ENCENDIDA |
+| **Pop_OS_LTS_With_Nvidia** | Gaming | 4 CPU, 6GB RAM, 70GB | ✅ ENCENDIDA |
+| **Pop_OS_LTS** | Académico | 2 CPU, 4GB RAM, 30GB | ✅ ENCENDIDA |
+
+## 📋 PRÓXIMOS PASOS
+
+### **1️⃣ Instalar OS en vCenter:**
+- Acceder a https://168.121.48.254:10123
+- Instalar Ubuntu Server en la VM Ubuntu_Server
+- Instalar Pop OS en las otras 2 VMs
+- Configurar red y SSH en cada VM
+
+### **2️⃣ Ejecutar configuración automática:**
+```bash
+# Una vez que las VMs tengan OS instalado y SSH configurado:
+ansible-playbook site.yml
+```
+
+## 🔧 CONFIGURACIÓN ACTUAL
 
 ### **VMware vCenter:**
 - **URL:** https://168.121.48.254:10123
-- **Usuario:** root / qwe123$
+- **Usuario:** root
+- **Password:** qwe123$
+- **Puerto:** 10123
 
-### **VMs Creadas:**
-1. **Ubuntu_Server** - 172.17.25.87 (Pendiente configuración SSH+GNOME)
-2. **Pop_OS_LTS_With_Nvidia** - Para gaming
-3. **Pop_OS_LTS** - Para académico
+### **Red configurada:**
+- Las VMs están en la red "VM Network"
+- Cada VM tiene su MAC address única
+- Se configurará DHCP/IP estática durante la instalación del OS
 
-## **📚 Documentación de Roles**
+### **ISOs disponibles en datastore:**
+- `[datastore1] JuanEspiritu/ubuntu-24.04.3-live-server-amd64.iso`
+- `[datastore1] JuanEspiritu/pop-os_22.04_amd64_nvidia_56.iso`
+- `[datastore1] JuanEspiritu/pop-os_22.04_amd64_intel_56.iso`
 
-Cada rol incluye su propia documentación detallada:
-- 📖 [`roles/gestion_procesos/README.md`](roles/gestion_procesos/README.md)
-- 📖 [`roles/usuarios_y_politicas/README.md`](roles/usuarios_y_politicas/README.md)  
-- 📖 [`roles/automatizacion_tareas/README.md`](roles/automatizacion_tareas/README.md)
-- 📖 [`roles/almacenamiento_y_fs/README.md`](roles/almacenamiento_y_fs/README.md)
+## 📚 ROLES IMPLEMENTADOS
 
-## **🚀 Beneficios de esta Arquitectura**
+### **1️⃣ sistema (Base del sistema)**
+- Actualización del sistema
+- Configuración básica de red
+- Servicios esenciales
+- SSH y seguridad
 
-### **🎯 Modularidad**
-- Cada rol tiene una responsabilidad específica
-- Fácil mantenimiento y actualización
-- Posibilidad de ejecutar roles individuales
+### **2️⃣ servicios (Servicios específicos)**
+- DHCP, DNS (Ubuntu Server)
+- Steam, gaming tools (Pop OS Gaming)
+- Software educativo (Pop OS Académico)
 
-### **📋 Claridad**
-- Documentación completa en cada componente
-- Nomenclatura consistente y descriptiva
-- Arquitectura fácil de entender
+### **3️⃣ usuarios (Gestión de usuarios)**
+- Usuarios del laboratorio
+- Grupos y permisos
+- Políticas de seguridad
 
-### **🔄 Reutilización**
-- Roles reutilizables en diferentes entornos
-- Variables configurables por grupo/host
-- Plantillas adaptables a diferentes necesidades
+### **4️⃣ aplicaciones (Software)**
+- Aplicaciones gaming
+- Software académico
+- Herramientas de desarrollo
 
-### **🛡️ Robustez**
-- Orden de ejecución garantiza dependencias
-- Manejo de errores y rollback
-- Validaciones en cada paso
+## 🏆 LOGROS DEL PROYECTO
+
+### ✅ **AUTOMATIZACIÓN COMPLETA:**
+- Un solo comando crea todas las VMs
+- Un solo comando configura todo el laboratorio
+- Arquitectura modular y escalable
+
+### ✅ **ESTRUCTURA LIMPIA:**
+- Solo archivos necesarios
+- Organización lógica y simple
+- Documentación clara
+
+### ✅ **FLEXIBILIDAD:**
+- Ejecutar todo o solo partes específicas
+- Configurar todas las VMs o solo una
+- Roles independientes y reutilizables
 
 ---
 
-**🎉 ¡El proyecto está completamente organizado y listo para la ejecución automatizada del laboratorio académico y gaming!**
+**🎉 ¡El laboratorio está funcionando y listo para la configuración final!**
+
+**📋 Estado:** VMs creadas ✅ | OS installation 🔄 | Ansible config ⏳
